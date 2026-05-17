@@ -4,20 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Zoro TV - Anime App</title>
-    <meta name="description" content="Se anime gratis - Zoro TV App">
+    <meta name="description" content="Se anime gratis med download">
     <meta name="theme-color" content="#e50914">
-    
+
+    <!-- Inline Manifest for PWA -->
     <link rel="manifest" href="data:application/manifest+json,{
-        &quot;name&quot;:&quot;Zoro TV&quot;,
-        &quot;short_name&quot;:&quot;ZoroTV&quot;,
-        &quot;start_url&quot;:&quot;.&quot;,
-        &quot;display&quot;:&quot;standalone&quot;,
-        &quot;background_color&quot;:&quot;#000000&quot;,
-        &quot;theme_color&quot;:&quot;#e50914&quot;,
-        &quot;icons&quot;:[{
-            &quot;src&quot;:&quot;https://zorotv.com.ro/favicon.ico&quot;,
-            &quot;sizes&quot;:&quot;192x192&quot;,
-            &quot;type&quot;:&quot;image/x-icon&quot;
+        %22name%22:%22Zoro%20TV%22,
+        %22short_name%22:%22ZoroTV%22,
+        %22description%22:%22Anime%20streaming%20med%20download%22,
+        %22start_url%22:%22.%22,
+        %22display%22:%22standalone%22,
+        %22background_color%22:%22%23000000%22,
+        %22theme_color%22:%22%23e50914%22,
+        %22icons%22:[{
+            %22src%22:%22https://zorotv.com.ro/favicon.ico%22,
+            %22sizes%22:%22192x192%22,
+            %22type%22:%22image/x-icon%22
         }]
     }">
 
@@ -25,34 +27,71 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         body, html { height:100%; background:#000; overflow:hidden; font-family:Arial, sans-serif; }
         iframe { border:none; width:100%; height:100%; }
+        
         .loader {
             position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-            color:white; font-size:18px; z-index:100; text-align:center;
+            color:white; font-size:20px; z-index:100; text-align:center;
         }
         .loader::after {
-            content: "⏳"; display:block; font-size:40px; margin:10px;
+            content:"⏳"; display:block; font-size:50px; margin:10px 0;
+        }
+
+        .download-btn {
+            position:fixed; bottom:25px; left:50%; transform:translateX(-50%);
+            background:#e50914; color:white; padding:14px 28px;
+            border:none; border-radius:50px; font-size:17px; font-weight:bold;
+            box-shadow:0 6px 20px rgba(229,9,20,0.6);
+            z-index:1000; display:none; align-items:center; gap:8px;
+            cursor:pointer; user-select:none;
+        }
+        .download-btn:active {
+            transform:translateX(-50%) scale(0.95);
         }
     </style>
 </head>
 <body>
     <div class="loader" id="loader">Indlæser Zoro TV...</div>
     <iframe id="frame" src="https://zorotv.com.ro/" allowfullscreen></iframe>
+    
+    <button class="download-btn" id="downloadBtn">
+        ⬇ Download nu
+    </button>
 
     <script>
         const loader = document.getElementById('loader');
         const frame = document.getElementById('frame');
+        const downloadBtn = document.getElementById('downloadBtn');
 
-        frame.onload = () => loader.style.display = 'none';
+        // Fjern loader når siden er indlæst
+        frame.onload = () => {
+            loader.style.display = 'none';
+            downloadBtn.style.display = 'flex';
+        };
 
-        // Service Worker for offline support
+        // Download knap funktion
+        downloadBtn.addEventListener('click', () => {
+            const currentUrl = frame.src;
+            
+            alert(`📥 Download funktion aktiveret!\n\n` +
+                  `1. Spil den episode du vil downloade\n` +
+                  `2. Tryk igen på "Download nu"\n\n` +
+                  `Tip: Brug en video downloader extension eller app (f.eks. IDM, CocoCut, Video DownloadHelper)`);
+            
+            // Forsøg at åbne i ny fane for lettere download
+            if (confirm("Åbn Zoro TV i ny fane for bedre download-muligheder?")) {
+                window.open(currentUrl, '_blank');
+            }
+        });
+
+        // Service Worker (PWA support)
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('data:application/javascript,'
                 + 'self.addEventListener("install",()=>self.skipWaiting());'
                 + 'self.addEventListener("activate",()=>self.clients.claim());'
-            );
+            ).then(() => console.log('✅ Zoro TV PWA klar'));
         }
 
-        // Tryk på volumen op for at genindlæse (nyttigt trick)
+        // Genindlæs med Volume Up knap (nyttigt på mobil)
         document.addEventListener('keydown', e => {
             if (e.key === 'VolumeUp') location.reload();
         });
